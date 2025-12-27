@@ -29,11 +29,42 @@ function saveToStorage() {
 }
 
 // ===== DOSYA YÖNETİMİ =====
-document.querySelectorAll('.file-item').forEach(item => {
-    item.addEventListener('click', function() {
-        const fileName = this.getAttribute('data-file');
-        loadFile(fileName);
+function buildFileItemInner(name) {
+    return `${name} <span class="edit-btn" title="Yeniden Adlandır">✎</span> <span class="delete-btn" title="Sil">✕</span>`;
+}
+
+function attachFileItemEvents(fileItem, fileName) {
+    fileItem.setAttribute('data-file', fileName);
+    fileItem.innerHTML = buildFileItemInner(fileName);
+
+    fileItem.addEventListener('click', function(e) {
+        if (e.target.classList.contains('delete-btn') || e.target.classList.contains('edit-btn')) {
+            return;
+        }
+        const targetFile = this.getAttribute('data-file');
+        loadFile(targetFile);
     });
+
+    const deleteBtn = fileItem.querySelector('.delete-btn');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteFile(fileName, fileItem);
+        });
+    }
+
+    const editBtn = fileItem.querySelector('.edit-btn');
+    if (editBtn) {
+        editBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            renameFile(fileName, fileItem);
+        });
+    }
+}
+
+document.querySelectorAll('.file-item').forEach(item => {
+    const initialName = item.getAttribute('data-file');
+    attachFileItemEvents(item, initialName);
 });
 
 function loadFile(fileName) {
@@ -178,67 +209,112 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 });
 
 // ===== GECE MODU =====
-const darkModeBtn = document.getElementById('darkModeBtn');
-let isDarkMode = localStorage.getItem('darkMode');
+const themeToggleBtn = document.getElementById('themeToggleBtn');
 
-// Eğer daha önce ayarlanmamışsa, sistem tercihi kontrol et
-if (isDarkMode === null) {
-    isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    localStorage.setItem('darkMode', isDarkMode);
-} else {
-    isDarkMode = isDarkMode === 'true';
+if (themeToggleBtn) {
+    let isDarkMode = localStorage.getItem('darkMode');
+
+    // Eğer daha önce ayarlanmamışsa, sistem tercihi kontrol et
+    if (isDarkMode === null) {
+        isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        localStorage.setItem('darkMode', isDarkMode);
+    } else {
+        isDarkMode = isDarkMode === 'true';
+    }
+
+    const applyThemeState = (dark) => {
+        document.body.classList.toggle('dark-mode', dark);
+        themeToggleBtn.classList.toggle('active', dark);
+        themeToggleBtn.setAttribute('aria-pressed', String(dark));
+        themeToggleBtn.title = dark ? 'Açık moda geç' : 'Koyu moda geç';
+        themeToggleBtn.setAttribute('aria-label', dark ? 'Açık moda geç' : 'Koyu moda geç');
+    };
+
+    applyThemeState(Boolean(isDarkMode));
+
+    themeToggleBtn.addEventListener('click', () => {
+        const darkMode = !document.body.classList.contains('dark-mode');
+        localStorage.setItem('darkMode', darkMode);
+        applyThemeState(darkMode);
+    });
 }
 
-if (isDarkMode) {
-    document.body.classList.add('dark-mode');
-    darkModeBtn.textContent = '☀️ Gündüz Modu';
+// ===== PROJE SEÇİMİ =====
+let selectedProject = null;
+
+function selectProject(projectEl) {
+    document.querySelectorAll('.project-name').forEach(el => el.classList.remove('selected'));
+    projectEl.classList.add('selected');
+    selectedProject = projectEl.closest('.project-item');
 }
 
-darkModeBtn.addEventListener('click', function() {
-    document.body.classList.toggle('dark-mode');
-    const darkMode = document.body.classList.contains('dark-mode');
-    localStorage.setItem('darkMode', darkMode);
-    this.textContent = darkMode ? '☀️ Gündüz Modu' : '🌙 Gece Modu';
+function toggleProject(projectItem) {
+    projectItem.classList.toggle('collapsed');
+}
+
+document.querySelectorAll('.project-name').forEach(nameEl => {
+    nameEl.addEventListener('click', () => {
+        const projectItem = nameEl.closest('.project-item');
+        toggleProject(projectItem);
+        selectProject(nameEl);
+    });
 });
 
-// ===== YENİ DOSYA OLUŞTURMA =====
-document.getElementById('newFileBtn').addEventListener('click', () => {
-    const fileName = prompt('Dosya adı (ör: Yeni Hikaye.txt):');
-    if (fileName && fileName.trim()) {
-        const cleanName = fileName.includes('.txt') ? fileName : fileName + '.txt';
-        
-        if (storage.files[cleanName]) {
-            alert('Bu dosya zaten var!');
-            return;
-        }
-        
-        storage.files[cleanName] = '';
-        storage.notes[cleanName] = '';
-        saveToStorage();
-        
-        // DOM'a yeni dosya ekle
-        const fileItem = document.createElement('div');
-        fileItem.className = 'file-item';
-        fileItem.setAttribute('data-file', cleanName);
-        fileItem.innerHTML = `📝 ${cleanName} <span class="delete-btn" title="Sil">✕</span>`;
-        
-        document.querySelector('.file-list').appendChild(fileItem);
-        
-        // Event listener ekle
-        fileItem.addEventListener('click', function(e) {
-            if (!e.target.classList.contains('delete-btn')) {
-                loadFile(cleanName);
-            }
-        });
-        
-        fileItem.querySelector('.delete-btn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            deleteFile(cleanName, fileItem);
-        });
-        
-        // Yeni dosyayı yükle
-        loadFile(cleanName);
+// Varsayılan olarak ilk projeyi seç
+const firstProjectName = document.querySelector('.project-name');
+if (firstProjectName) selectProject(firstProjectName);
+
+function appendFileToProject(cleanName, targetProject) {
+    const fileList = targetProject.querySelector('.file-list');
+    const fileItem = document.createElement('div');
+    fileItem.className = 'file-item';
+    attachFileItemEvents(fileItem, cleanName);
+    fileList.appendChild(fileItem);
+}
+
+function createFile(promptText = 'Dosya adı (ör: Yeni Hikaye.txt):') {
+    const fileName = prompt(promptText);
+    if (!(fileName && fileName.trim())) return;
+
+    const cleanName = fileName.includes('.txt') ? fileName.trim() : `${fileName.trim()}.txt`;
+    if (storage.files[cleanName]) {
+        alert('Bu dosya zaten var!');
+        return;
     }
+
+    storage.files[cleanName] = '';
+    storage.notes[cleanName] = '';
+    saveToStorage();
+
+    const targetProject = selectedProject || document.querySelector('.project-item');
+    if (!targetProject) return;
+    appendFileToProject(cleanName, targetProject);
+    loadFile(cleanName);
+}
+
+document.getElementById('newNoteAction').addEventListener('click', () => {
+    createFile('Not adı (ör: Yeni Not):');
+});
+
+document.getElementById('newFolderAction').addEventListener('click', () => {
+    const folderName = prompt('Klasör adı (ör: Yeni Proje):');
+    if (!(folderName && folderName.trim())) return;
+    const clean = folderName.trim();
+
+    const projectItem = document.createElement('div');
+    projectItem.className = 'project-item';
+    projectItem.innerHTML = `
+        <div class="project-name">${clean}</div>
+        <div class="file-list"></div>
+    `;
+    document.getElementById('fileTree').appendChild(projectItem);
+
+    const nameEl = projectItem.querySelector('.project-name');
+    nameEl.addEventListener('click', () => {
+        toggleProject(projectItem);
+        selectProject(nameEl);
+    });
+    selectProject(nameEl);
 });
 
 // ===== DOSYA SİLME =====
@@ -258,6 +334,32 @@ function deleteFile(fileName, element) {
             document.getElementById('notes').value = '';
             document.getElementById('currentFileName').textContent = 'Yeni Belge';
         }
+    }
+}
+
+function renameFile(oldName, element) {
+    const newNameInput = prompt('Yeni dosya adı:', oldName.replace('.txt', ''));
+    if (!(newNameInput && newNameInput.trim())) return;
+    const cleanName = newNameInput.includes('.txt') ? newNameInput.trim() : `${newNameInput.trim()}.txt`;
+
+    if (cleanName === oldName) return;
+    if (storage.files[cleanName]) {
+        alert('Bu isimde bir dosya zaten var!');
+        return;
+    }
+
+    storage.files[cleanName] = storage.files[oldName] || '';
+    storage.notes[cleanName] = storage.notes[oldName] || '';
+    delete storage.files[oldName];
+    delete storage.notes[oldName];
+    saveToStorage();
+
+    attachFileItemEvents(element, cleanName);
+
+    // Eğer açık dosya rename olduysa güncelle
+    if (storage.currentFile === oldName) {
+        storage.currentFile = cleanName;
+        document.getElementById('currentFileName').textContent = cleanName.replace('.txt', '');
     }
 }
 

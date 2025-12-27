@@ -11,7 +11,10 @@
     <!-- ÜST TOOLBAR -->
     <div class="top-toolbar">
         <div class="toolbar-title">📝 Yazar Editörü</div>
-        <div class="right-panel-toggle" id="rightPanelToggle" title="Araçları Aç/Kapat">🛠️ Araçlar</div>
+        <div class="top-actions">
+            <button class="top-icon-btn" id="themeToggleBtn" title="Tema Değiştir"></button>
+            <div class="right-panel-toggle" id="rightPanelToggle" title="Araçları Aç/Kapat">🛠️ Araçlar</div>
+        </div>
     </div>
 
     <div class="app-container">
@@ -19,21 +22,24 @@
         <div class="left-panel">
             <div class="panel-header">
                 <h2>📁 Projeler</h2>
-                <button class="btn-icon" id="newFileBtn" title="Yeni Dosya">+</button>
+            </div>
+            <div class="project-actions">
+                <button class="btn-small" id="newFolderAction">📂 Yeni Klasör</button>
+                <button class="btn-small" id="newNoteAction">📝 Yeni Not</button>
             </div>
             <div class="file-tree" id="fileTree">
                 <div class="project-item">
-                    <div class="project-name">📖 Şiir Koleksiyonu</div>
+                    <div class="project-name">Şiir Koleksiyonu</div>
                     <div class="file-list">
-                        <div class="file-item" data-file="siir-1.txt">📝 Gece Düşünceleri.txt <span class="delete-btn" title="Sil">✕</span></div>
-                        <div class="file-item" data-file="siir-2.txt">📝 Bahar Hayali.txt <span class="delete-btn" title="Sil">✕</span></div>
+                        <div class="file-item" data-file="siir-1.txt">Gece Düşünceleri.txt <span class="edit-btn" title="Yeniden Adlandır">✎</span> <span class="delete-btn" title="Sil">✕</span></div>
+                        <div class="file-item" data-file="siir-2.txt">Bahar Hayali.txt <span class="edit-btn" title="Yeniden Adlandır">✎</span> <span class="delete-btn" title="Sil">✕</span></div>
                     </div>
                 </div>
                 <div class="project-item">
-                    <div class="project-name">🔍 Polisiye Roman</div>
+                    <div class="project-name">Polisiye Roman</div>
                     <div class="file-list">
-                        <div class="file-item" data-file="polisiye-1.txt">📝 Bölüm 1 - Başlangıç.txt <span class="delete-btn" title="Sil">✕</span></div>
-                        <div class="file-item" data-file="polisiye-2.txt">📝 Bölüm 2 - İpuçları.txt <span class="delete-btn" title="Sil">✕</span></div>
+                        <div class="file-item" data-file="polisiye-1.txt">Bölüm 1 - Başlangıç.txt <span class="edit-btn" title="Yeniden Adlandır">✎</span> <span class="delete-btn" title="Sil">✕</span></div>
+                        <div class="file-item" data-file="polisiye-2.txt">Bölüm 2 - İpuçları.txt <span class="edit-btn" title="Yeniden Adlandır">✎</span> <span class="delete-btn" title="Sil">✕</span></div>
                     </div>
                 </div>
             </div>
@@ -73,7 +79,6 @@
             <div class="editor-footer">
                 <button class="btn-primary" id="saveBtn">💾 Kaydet</button>
                 <button class="btn-secondary" id="exportTxtBtn">📥 TXT İndir</button>
-                <button class="btn-secondary" id="darkModeBtn">🌙 Gece Modu</button>
             </div>
         </div>
 
