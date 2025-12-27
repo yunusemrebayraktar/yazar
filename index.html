@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yazar Editörü</title>
+    <link rel="stylesheet" href="theme.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- ÜST TOOLBAR -->
+    <div class="top-toolbar">
+        <div class="toolbar-title">📝 Yazar Editörü</div>
+        <div class="right-panel-toggle" id="rightPanelToggle" title="Araçları Aç/Kapat">🛠️ Araçlar</div>
+    </div>
+
+    <div class="app-container">
+        <!-- SOL PANEL - Dosya Listesi -->
+        <div class="left-panel">
+            <div class="panel-header">
+                <h2>📁 Projeler</h2>
+                <button class="btn-icon" id="newFileBtn" title="Yeni Dosya">+</button>
+            </div>
+            <div class="file-tree" id="fileTree">
+                <div class="project-item">
+                    <div class="project-name">📖 Şiir Koleksiyonu</div>
+                    <div class="file-list">
+                        <div class="file-item" data-file="siir-1.txt">📝 Gece Düşünceleri.txt <span class="delete-btn" title="Sil">✕</span></div>
+                        <div class="file-item" data-file="siir-2.txt">📝 Bahar Hayali.txt <span class="delete-btn" title="Sil">✕</span></div>
+                    </div>
+                </div>
+                <div class="project-item">
+                    <div class="project-name">🔍 Polisiye Roman</div>
+                    <div class="file-list">
+                        <div class="file-item" data-file="polisiye-1.txt">📝 Bölüm 1 - Başlangıç.txt <span class="delete-btn" title="Sil">✕</span></div>
+                        <div class="file-item" data-file="polisiye-2.txt">📝 Bölüm 2 - İpuçları.txt <span class="delete-btn" title="Sil">✕</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ORTA PANEL - Metin Editörü -->
+        <div class="middle-panel">
+            <div class="editor-header">
+                <h2 id="currentFileName">Yeni Belge</h2>
+                <div class="editor-controls">
+                    <button class="btn-icon" id="searchBtn" title="Arama/Değiştir">🔍</button>
+                </div>
+                <div class="editor-stats">
+                    <span id="wordCount">Kelimeler: 0</span>
+                    <span id="charCount">Karakterler: 0</span>
+                    <span id="timeSpent">⏱️ 0 dk</span>
+                </div>
+            </div>
+            <div id="searchPanel" class="search-panel hidden">
+                <input type="text" id="searchInput" placeholder="Ara...">
+                <input type="text" id="replaceInput" placeholder="Değiştir ile...">
+                <button id="replaceBtn" class="btn-small">Değiştir</button>
+                <button id="replaceAllBtn" class="btn-small">Hepsini Değiştir</button>
+                <button id="closeSearchBtn" class="btn-small">Kapat</button>
+            </div>
+            <div class="formatting-toolbar">
+                <button id="boldBtn" class="format-btn" title="Kalın (Ctrl+B)"><strong>B</strong></button>
+                <button id="italicBtn" class="format-btn" title="İtalik (Ctrl+I)"><em>I</em></button>
+                <button id="underlineBtn" class="format-btn" title="Altı Çizili (Ctrl+U)"><u>U</u></button>
+                <button id="strikeBtn" class="format-btn" title="Önü Çizili"><s>S</s></button>
+                <span class="toolbar-separator"></span>
+                <button id="alignLeftBtn" class="format-btn" title="Sola Hizala">⬅</button>
+                <button id="alignCenterBtn" class="format-btn" title="Ortaya Hizala">⬇</button>
+                <button id="alignRightBtn" class="format-btn" title="Sağa Hizala">➡</button>
+            </div>
+            <div id="editor" class="editor-content" contenteditable="true"></div>
+            <div class="editor-footer">
+                <button class="btn-primary" id="saveBtn">💾 Kaydet</button>
+                <button class="btn-secondary" id="exportTxtBtn">📥 TXT İndir</button>
+                <button class="btn-secondary" id="darkModeBtn">🌙 Gece Modu</button>
+            </div>
+        </div>
+
+        <!-- SAĞ PANEL - Tabs Sistemi -->
+        <div class="right-panel" id="rightPanel">
+            <div class="right-panel-header">
+                <h3>📌 Araçlar</h3>
+            </div>
+            <div class="right-panel-content" id="rightPanelContent">
+                <div class="panel-tabs">
+                    <button class="tab-btn active" data-tab="notes">📝 Notlar</button>
+                    <button class="tab-btn" data-tab="characters">👥 Karakterler</button>
+                </div>
+                
+                <!-- Notlar Tab -->
+                <div id="notes-tab" class="tab-content active">
+                    <textarea id="notes-text" placeholder="Karakterler, fikirler, çıkmazlar..."></textarea>
+                    <div class="notes-footer">
+                        <button class="btn-primary" id="saveNotesBtn">💾 Kaydet</button>
+                        <button class="btn-secondary" id="clearNotesBtn">🗑️ Temizle</button>
+                    </div>
+                </div>
+                
+                <!-- Karakterler Tab -->
+                <div id="characters-tab" class="tab-content">
+                    <div class="characters-placeholder">
+                        <p>Planlananlar:</p>
+                        <ul>
+                            <li>Karakter kartı şablonu (isim, rol, notlar)</li>
+                            <li>İlişki/bağlantı ekleme ve filtreleme</li>
+                            <li>Dışa aktarma (TXT/JSON) ve arama</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
